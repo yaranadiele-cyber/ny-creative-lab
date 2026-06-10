@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel Admin — NY Creative Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --black:#050508;--dark:#0a0a12;--card:#0f0f1a;
+  --blue:#00c8ff;--purple:#9b5cff;--pink:#ff3cac;--orange:#ff8c42;
+  --text:#e8e8f0;--muted:#7a7a9a;--border:rgba(0,200,255,.15);
+  --glow-blue:0 0 30px rgba(0,200,255,.4);--glow-purple:0 0 30px rgba(155,92,255,.4);
+  --grad-main:linear-gradient(135deg,#00c8ff,#9b5cff,#ff3cac);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:var(--black);color:var(--text);min-height:100vh;overflow-x:hidden}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:var(--black)}
+::-webkit-scrollbar-thumb{background:var(--purple);border-radius:2px}
+
+/* ── LOGIN PAGE ── */
+#loginPage{
+  display:flex;align-items:center;justify-content:center;
+  min-height:100vh;padding:1rem;
+  background:radial-gradient(ellipse at 30% 20%,rgba(0,200,255,.06) 0%,transparent 60%),
+             radial-gradient(ellipse at 70% 80%,rgba(155,92,255,.08) 0%,transparent 60%);
+}
+.login-card{
+  width:100%;max-width:400px;
+  background:var(--dark);border:1px solid var(--border);
+  border-radius:20px;overflow:hidden;
+  box-shadow:0 40px 120px rgba(0,0,0,.9),0 0 60px rgba(0,200,255,.05);
+}
+.login-header{
+  padding:2.5rem 2.5rem 2rem;text-align:center;
+  background:linear-gradient(135deg,rgba(0,200,255,.07),rgba(155,92,255,.1));
+  border-bottom:1px solid var(--border);
+}
+.login-logo{
+  width:64px;height:64px;margin:0 auto 1rem;
+  background:rgba(0,200,255,.1);border:1px solid rgba(0,200,255,.3);
+  border-radius:16px;display:flex;align-items:center;justify-content:center;
+}
+.login-title{font-family:'Orbitron',monospace;font-size:1rem;font-weight:700;letter-spacing:.1em;color:var(--text)}
+.login-sub{font-size:.75rem;color:var(--muted);margin-top:.3rem;letter-spacing:.05em}
+.login-body{padding:2rem 2.5rem 2.5rem}
+.field-label{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:.5rem;font-family:'Rajdhani',sans-serif;font-weight:600;display:block}
+.input-wrap{position:relative;margin-bottom:1rem}
+.field-input{
+  width:100%;padding:.8rem 2.8rem .8rem 1rem;
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);
+  border-radius:9px;color:var(--text);font-size:.95rem;font-family:'Inter',sans-serif;
+  outline:none;transition:border-color .3s,box-shadow .3s;
+}
+.field-input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(0,200,255,.12)}
+.eye-btn{
+  position:absolute;right:.8rem;top:50%;transform:translateY(-50%);
+  background:none;border:none;cursor:pointer;color:var(--muted);
+  padding:.2rem;display:flex;align-items:center;transition:color .2s;
+}
+.eye-btn:hover{color:var(--blue)}
+.error-msg{
+  display:none;align-items:center;gap:.4rem;
+  margin-bottom:1rem;padding:.6rem .8rem;
+  background:rgba(255,60,172,.08);border:1px solid rgba(255,60,172,.25);
+  border-radius:7px;font-size:.8rem;color:var(--pink);
+}
+.btn-login{
+  width:100%;padding:.9rem;
+  background:var(--grad-main);border:none;border-radius:9px;
+  color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;
+  font-size:1rem;letter-spacing:.08em;text-transform:uppercase;
+  cursor:pointer;transition:all .3s;box-shadow:0 4px 20px rgba(155,92,255,.3);
+  margin-bottom:.75rem;
+}
+.btn-login:hover{transform:translateY(-1px);box-shadow:0 8px 30px rgba(155,92,255,.45)}
+.forgot-link{
+  width:100%;background:transparent;border:1px solid rgba(255,255,255,.08);
+  border-radius:9px;padding:.7rem;color:var(--muted);font-size:.82rem;
+  cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif;
+}
+.forgot-link:hover{border-color:rgba(0,200,255,.3);color:var(--blue)}
+.install-hint{
+  margin-top:1.5rem;padding:1rem;
+  background:rgba(155,92,255,.06);border:1px solid rgba(155,92,255,.15);
+  border-radius:8px;text-align:center;
+}
+.install-hint p{font-size:.76rem;color:var(--muted);line-height:1.6}
+.install-hint strong{color:var(--purple)}
+
+/* ── CHANGE PASSWORD MODAL ── */
+#changePwdModal{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.8);backdrop-filter:blur(6px);
+  z-index:9999;align-items:center;justify-content:center;padding:1rem;
+}
+.modal-card{
+  width:100%;max-width:380px;
+  background:var(--dark);border:1px solid var(--border);
+  border-radius:16px;overflow:hidden;
+  box-shadow:0 30px 100px rgba(0,0,0,.9);
+}
+.modal-header{
+  padding:1.5rem;background:linear-gradient(135deg,rgba(155,92,255,.1),rgba(0,200,255,.06));
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.modal-title{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:1rem;color:var(--text)}
+.modal-close{background:none;border:none;color:var(--muted);cursor:pointer;font-size:1.2rem;padding:.2rem;transition:color .2s}
+.modal-close:hover{color:var(--pink)}
+.modal-body{padding:1.5rem}
+
+/* ── ADMIN PANEL ── */
+#adminPage{display:none;min-height:100vh;flex-direction:column}
+.admin-topbar{
+  position:sticky;top:0;z-index:100;
+  background:rgba(10,10,18,.95);backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  padding:.9rem 1.5rem;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.topbar-brand{display:flex;align-items:center;gap:.75rem}
+.topbar-logo{
+  width:38px;height:38px;background:rgba(0,200,255,.1);
+  border:1px solid rgba(0,200,255,.25);border-radius:9px;
+  display:flex;align-items:center;justify-content:center;
+}
+.topbar-name{font-family:'Orbitron',monospace;font-size:.85rem;font-weight:700;letter-spacing:.08em;background:var(--grad-main);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.topbar-sub{font-size:.68rem;color:var(--muted)}
+.topbar-actions{display:flex;align-items:center;gap:.5rem}
+.tbtn{
+  display:flex;align-items:center;gap:.4rem;
+  padding:.5rem .9rem;border-radius:7px;
+  font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.78rem;
+  letter-spacing:.06em;text-transform:uppercase;
+  cursor:pointer;transition:all .2s;
+}
+.tbtn-outline{background:transparent;border:1px solid rgba(255,255,255,.1);color:var(--muted)}
+.tbtn-outline:hover{border-color:rgba(0,200,255,.4);color:var(--blue)}
+.tbtn-danger{background:transparent;border:1px solid rgba(255,60,172,.2);color:var(--pink)}
+.tbtn-danger:hover{background:rgba(255,60,172,.1)}
+.tbtn-download{background:rgba(155,92,255,.1);border:1px solid rgba(155,92,255,.3);color:var(--purple)}
+.tbtn-download:hover{background:rgba(155,92,255,.2)}
+
+/* ── TABS ── */
+.admin-tabs{
+  display:flex;border-bottom:1px solid var(--border);
+  background:rgba(10,10,18,.8);padding:0 1.5rem;overflow-x:auto;
+  flex-shrink:0;
+}
+.admin-tabs::-webkit-scrollbar{height:2px}
+.atab{
+  padding:.85rem 1.1rem;background:none;border:none;
+  border-bottom:2px solid transparent;color:var(--muted);
+  font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.8rem;
+  letter-spacing:.07em;text-transform:uppercase;cursor:pointer;transition:all .2s;
+  white-space:nowrap;
+}
+.atab:hover{color:var(--text)}
+.atab.active{border-bottom-color:var(--blue);color:var(--blue)}
+
+/* ── CONTENT AREA ── */
+.admin-content{flex:1;padding:1.5rem;max-width:860px;margin:0 auto;width:100%}
+.section-hdr{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:1.25rem;
+}
+.section-hdr-title{
+  font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.85rem;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--blue);
+}
+
+/* ── FORMS / CARDS ── */
+.form-card{
+  background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.07);
+  border-radius:12px;padding:1.25rem;margin-bottom:1.5rem;
+}
+.form-row{display:flex;gap:.6rem;margin-bottom:.6rem;flex-wrap:wrap}
+.form-row .ainput{flex:1;min-width:120px}
+.ainput{
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);
+  border-radius:8px;padding:.62rem .9rem;color:var(--text);
+  font-size:.85rem;font-family:'Inter',sans-serif;outline:none;
+  transition:border-color .25s,box-shadow .25s;width:100%;
+}
+.ainput:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(0,200,255,.1)}
+.ainput-sm{max-width:90px;flex:0 0 auto}
+select.ainput{cursor:pointer}
+.abtn{
+  padding:.62rem 1.1rem;background:var(--grad-main);border:none;
+  border-radius:8px;color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;
+  font-size:.82rem;letter-spacing:.06em;cursor:pointer;white-space:nowrap;transition:all .2s;
+}
+.abtn:hover{transform:translateY(-1px);box-shadow:0 4px 15px rgba(155,92,255,.35)}
+.abtn-sm{padding:.45rem .8rem;font-size:.76rem}
+.abtn-secondary{background:rgba(0,200,255,.1);border:1px solid rgba(0,200,255,.3);color:var(--blue)}
+.abtn-secondary:hover{background:rgba(0,200,255,.2);transform:translateY(-1px)}
+.abtn-danger{background:rgba(255,60,172,.08);border:1px solid rgba(255,60,172,.25);color:var(--pink)}
+.abtn-danger:hover{background:rgba(255,60,172,.18)}
+.upload-label{
+  display:flex;align-items:center;gap:.5rem;
+  padding:.62rem .9rem;background:rgba(155,92,255,.07);
+  border:1px dashed rgba(155,92,255,.3);border-radius:8px;
+  color:var(--purple);font-size:.82rem;cursor:pointer;flex:1;transition:all .2s;
+}
+.upload-label:hover{background:rgba(155,92,255,.14);border-color:rgba(155,92,255,.5)}
+
+/* ── LIST ROWS ── */
+.list-row{
+  display:flex;align-items:center;gap:.75rem;
+  padding:.7rem 1rem;background:rgba(255,255,255,.03);
+  border:1px solid rgba(255,255,255,.06);border-radius:8px;margin-bottom:.4rem;
+}
+.row-icon{font-size:1.1rem;flex-shrink:0}
+.row-name{flex:1;font-size:.88rem;color:var(--text)}
+.row-del{background:none;border:none;color:var(--muted);cursor:pointer;padding:.25rem;display:flex;align-items:center;transition:color .2s}
+.row-del:hover{color:var(--pink)}
+.svc-row{
+  display:flex;align-items:center;gap:.85rem;padding:.85rem;
+  background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.06);
+  border-left:3px solid var(--blue);border-radius:9px;margin-bottom:.6rem;
+}
+.svc-thumb{width:52px;height:52px;object-fit:cover;border-radius:7px;flex-shrink:0;border:1px solid var(--border)}
+.svc-thumb-ph{width:52px;height:52px;border-radius:7px;background:rgba(0,200,255,.07);border:1px solid rgba(0,200,255,.15);display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0}
+.svc-info{flex:1;min-width:0}
+.svc-name{font-weight:700;font-size:.88rem;color:var(--text);margin-bottom:.12rem}
+.svc-meta{font-size:.74rem;color:var(--blue);margin-bottom:.08rem}
+.svc-desc{font-size:.74rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:300px}
+.svc-actions{display:flex;flex-direction:column;gap:.35rem;flex-shrink:0}
+.empty-state{text-align:center;padding:3rem;color:var(--muted);font-size:.88rem;line-height:2}
+
+/* ── SETTINGS FORM ── */
+.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.settings-group{display:flex;flex-direction:column;gap:.4rem}
+.settings-group.full{grid-column:1/-1}
+.settings-label{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-family:'Rajdhani',sans-serif;font-weight:600}
+.divider{height:1px;background:rgba(255,255,255,.07);margin:1.25rem 0}
+.info-box{
+  padding:.8rem 1rem;background:rgba(0,200,255,.06);
+  border:1px solid rgba(0,200,255,.2);border-radius:8px;
+  font-size:.8rem;color:var(--blue);line-height:1.6;margin-bottom:1rem;
+}
+.review-card-admin{
+  background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.07);
+  border-radius:9px;padding:1rem;margin-bottom:.6rem;
+}
+.rev-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem}
+.rev-stars{color:var(--orange);font-size:.85rem}
+.rev-status{font-size:.7rem;padding:.2rem .6rem;border-radius:20px;font-family:'Rajdhani',sans-serif;font-weight:700;text-transform:uppercase}
+.rev-status.pending{background:rgba(255,140,66,.1);color:var(--orange);border:1px solid rgba(255,140,66,.25)}
+.rev-status.published{background:rgba(0,200,255,.1);color:var(--blue);border:1px solid rgba(0,200,255,.25)}
+.rev-name{font-weight:700;font-size:.88rem;color:var(--text);margin-bottom:.2rem}
+.rev-text{font-size:.82rem;color:var(--muted);font-style:italic;line-height:1.5;margin-bottom:.6rem}
+.rev-actions{display:flex;gap:.5rem}
+.proj-row{
+  display:flex;align-items:center;gap:.85rem;padding:.85rem;
+  background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.06);
+  border-left:3px solid var(--purple);border-radius:9px;margin-bottom:.6rem;
+}
+
+/* ── AVAILABILITY TABLE ── */
+.avail-table{width:100%;border-collapse:collapse;font-size:.82rem}
+.avail-table th{text-align:left;padding:.5rem .6rem;color:var(--muted);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;border-bottom:1px solid rgba(255,255,255,.06)}
+.avail-table td{padding:.45rem .6rem;border-bottom:1px solid rgba(255,255,255,.04)}
+.avail-table tr:last-child td{border-bottom:none}
+.avail-toggle{position:relative;display:inline-block;width:38px;height:20px;vertical-align:middle}
+.avail-toggle input{opacity:0;width:0;height:0}
+.avail-slider{position:absolute;cursor:pointer;inset:0;background:rgba(255,255,255,.1);border-radius:20px;transition:.3s}
+.avail-slider:before{content:'';position:absolute;height:14px;width:14px;left:3px;top:3px;background:var(--muted);border-radius:50%;transition:.3s}
+.avail-toggle input:checked + .avail-slider{background:rgba(0,200,255,.3)}
+.avail-toggle input:checked + .avail-slider:before{transform:translateX(18px);background:var(--blue)}
+.avail-time{
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);
+  border-radius:6px;padding:.3rem .5rem;color:var(--text);font-size:.82rem;
+  font-family:'Inter',sans-serif;outline:none;width:85px;
+  transition:border-color .2s;
+}
+.avail-time:focus{border-color:var(--blue)}
+.avail-time:disabled{opacity:.3;cursor:not-allowed}
+.avail-day-name{font-weight:600;color:var(--text)}
+
+/* ── TOAST ── */
+#toast{
+  position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(10px);
+  background:rgba(0,200,255,.12);border:1px solid rgba(0,200,255,.4);
+  color:var(--blue);padding:.65rem 1.4rem;border-radius:9px;font-size:.85rem;
+  font-weight:600;z-index:99999;opacity:0;transition:all .4s;
+  pointer-events:none;white-space:nowrap;
+}
+
+/* ── MOBILE ── */
+@media(max-width:600px){
+  .settings-grid{grid-template-columns:1fr}
+  .settings-group.full{grid-column:1}
+  .topbar-actions .tbtn span{display:none}
+  .admin-content{padding:1rem}
+}
+</style>
+</head>
+<body>
+
+<!-- =========================================================
+     LOGIN PAGE
+     ========================================================= -->
+<div id="loginPage">
+  <div class="login-card">
+    <div class="login-header">
+      <div class="login-logo">
+        <svg viewBox="0 0 24 24" width="28" height="28" stroke="var(--blue)" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+      </div>
+      <div class="login-title">PAINEL ADMIN</div>
+      <div class="login-sub">NY CREATIVE LAB</div>
+    </div>
+    <div class="login-body">
+      <label class="field-label" for="loginPwd">Senha</label>
+      <div class="input-wrap">
+        <input id="loginPwd" class="field-input" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"/>
+        <button class="eye-btn" onclick="toggleEye('loginPwd','loginEye')" type="button" title="Mostrar/ocultar">
+          <svg id="loginEye" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+      <div id="loginError" class="error-msg">
+        <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+        Senha incorreta. Tente novamente.
+      </div>
+      <button class="btn-login" onclick="doLogin()">Entrar no Painel</button>
+      <button class="forgot-link" onclick="openChangePwd(true)">🔑 Esqueci minha senha / Alterar senha</button>
+
+      <div class="install-hint">
+        <p>📱 Adicione à tela inicial para acesso rápido.<br><strong>iOS:</strong> Compartilhar → Adicionar à Tela de Início<br><strong>Android:</strong> Menu → Adicionar à tela inicial</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- =========================================================
+     CHANGE PASSWORD MODAL
+     ========================================================= -->
+<div id="changePwdModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(6px);z-index:9999;align-items:center;justify-content:center;padding:1rem">
+  <div class="modal-card">
+    <div class="modal-header">
+      <div class="modal-title">🔑 Alterar Senha</div>
+      <button class="modal-close" onclick="closeChangePwd()" id="changePwdCloseBtn">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="cpwdRecoverNotice" style="display:none;padding:.75rem;background:rgba(255,140,66,.08);border:1px solid rgba(255,140,66,.25);border-radius:7px;font-size:.8rem;color:var(--orange);margin-bottom:1rem;line-height:1.6">
+        ⚠️ Para recuperar o acesso, você precisa da senha mestre de recuperação.<br>Senha mestre padrão: <code style="background:rgba(255,140,66,.1);padding:.1rem .3rem;border-radius:3px">nyrecovery2025</code>
+      </div>
+      <div id="cpwdCurrentWrap">
+        <label class="field-label" for="cpwdCurrent">Senha atual</label>
+        <div class="input-wrap" style="margin-bottom:1rem">
+          <input id="cpwdCurrent" class="field-input" type="password" placeholder="Senha atual"/>
+          <button class="eye-btn" onclick="toggleEye('cpwdCurrent','eyeCurrent')" type="button">
+            <svg id="eyeCurrent" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+      </div>
+      <label class="field-label" for="cpwdNew">Nova senha</label>
+      <div class="input-wrap" style="margin-bottom:1rem">
+        <input id="cpwdNew" class="field-input" type="password" placeholder="Nova senha (mín. 6 caracteres)"/>
+        <button class="eye-btn" onclick="toggleEye('cpwdNew','eyeNew')" type="button">
+          <svg id="eyeNew" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+      <label class="field-label" for="cpwdConfirm">Confirmar nova senha</label>
+      <div class="input-wrap" style="margin-bottom:1rem">
+        <input id="cpwdConfirm" class="field-input" type="password" placeholder="Repita a nova senha"/>
+        <button class="eye-btn" onclick="toggleEye('cpwdConfirm','eyeConfirm')" type="button">
+          <svg id="eyeConfirm" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+      <div id="cpwdError" class="error-msg">Campos inválidos. Verifique e tente novamente.</div>
+      <button class="btn-login" onclick="doChangePwd()">Salvar Nova Senha</button>
+    </div>
+  </div>
+</div>
+
+<!-- =========================================================
+     ADMIN PAGE
+     ========================================================= -->
+<div id="adminPage">
+
+  <!-- Top Bar -->
+  <div class="admin-topbar">
+    <div class="topbar-brand">
+      <div class="topbar-logo">
+        <svg viewBox="0 0 24 24" width="18" height="18" stroke="var(--blue)" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </div>
+      <div>
+        <div class="topbar-name">NY CREATIVE LAB</div>
+        <div class="topbar-sub">Painel Administrativo</div>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <button class="tbtn tbtn-download" onclick="downloadAdminPage()" title="Baixar página admin">
+        <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        <span>Baixar Admin</span>
+      </button>
+      <button class="tbtn tbtn-outline" onclick="openChangePwd(false)" title="Alterar senha">
+        <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <span>Senha</span>
+      </button>
+      <button class="tbtn tbtn-danger" onclick="doLogout()" title="Sair">
+        <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        <span>Sair</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="admin-tabs">
+    <button class="atab active" data-tab="services" onclick="switchTab('services')">🛠️ Serviços</button>
+    <button class="atab" data-tab="categories" onclick="switchTab('categories')">📂 Categorias</button>
+    <button class="atab" data-tab="projects" onclick="switchTab('projects')">🌐 Projetos</button>
+    <button class="atab" data-tab="reviews" onclick="switchTab('reviews')">💬 Depoimentos</button>
+    <button class="atab" data-tab="settings" onclick="switchTab('settings')">⚙️ Configurações</button>
+  </div>
+
+  <!-- Content -->
+  <div class="admin-content">
+
+    <!-- ── SERVICES TAB ── -->
+    <div id="tab-services" class="tab-content">
+      <div class="form-card">
+        <div class="section-hdr"><div class="section-hdr-title">➕ Adicionar Serviço</div></div>
+        <div class="form-row">
+          <select id="svcCat" class="ainput"><option value="">Categoria...</option></select>
+          <input id="svcName" class="ainput" placeholder="Nome do serviço"/>
+        </div>
+        <div class="form-row">
+          <input id="svcPrice" class="ainput" type="text" placeholder="Preço (ex: A partir de R$ 120)"/>
+          <input id="svcPrazo" class="ainput" placeholder="Prazo (ex: 1–5 dias)"/>
+        </div>
+        <div class="form-row">
+          <input id="svcIcon" class="ainput ainput-sm" placeholder="🎨 Emoji"/>
+          <input id="svcDesc" class="ainput" placeholder="Descrição breve do serviço"/>
+        </div>
+        <div class="form-row">
+          <label class="upload-label" for="svcImg">
+            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            <span id="svcImgLabel">Foto do serviço (opcional)</span>
+            <input id="svcImg" type="file" accept="image/*" style="display:none" onchange="previewSvcImg(this)"/>
+          </label>
+          <button class="abtn" onclick="addService()">+ Adicionar</button>
+        </div>
+        <div id="svcImgPreview" style="display:none;margin-top:.5rem">
+          <img id="svcPreviewImg" style="height:80px;border-radius:6px;border:1px solid var(--border);object-fit:cover"/>
+        </div>
+      </div>
+      <div class="section-hdr"><div class="section-hdr-title">📋 Lista de Serviços</div></div>
+      <div id="svcList"></div>
+    </div>
+
+    <!-- ── CATEGORIES TAB ── -->
+    <div id="tab-categories" class="tab-content" style="display:none">
+      <div class="form-card">
+        <div class="section-hdr"><div class="section-hdr-title">➕ Adicionar Categoria</div></div>
+        <div class="form-row">
+          <input id="newCatIcon" class="ainput ainput-sm" placeholder="🎯 Emoji" style="max-width:90px"/>
+          <input id="newCatName" class="ainput" placeholder="Nome da categoria"/>
+          <button class="abtn" onclick="addCategory()">+ Adicionar</button>
+        </div>
+      </div>
+      <div class="section-hdr"><div class="section-hdr-title">📂 Categorias Cadastradas</div></div>
+      <div id="catList"></div>
+    </div>
+
+    <!-- ── PROJECTS TAB ── -->
+    <div id="tab-projects" class="tab-content" style="display:none">
+      <div class="form-card">
+        <div class="section-hdr"><div class="section-hdr-title">➕ Adicionar Projeto</div></div>
+        <div class="form-row">
+          <input id="projName" class="ainput" placeholder="Nome do projeto"/>
+          <input id="projCategory" class="ainput" placeholder="Categoria (ex: Design, Site)"/>
+        </div>
+        <div class="form-row">
+          <input id="projUrl" class="ainput" placeholder="URL do projeto (opcional)"/>
+          <select id="projStatus" class="ainput">
+            <option value="publicado">✅ Publicado</option>
+            <option value="rascunho">📝 Rascunho</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <input id="projDesc" class="ainput" placeholder="Descrição do projeto"/>
+        </div>
+        <div class="form-row">
+          <label class="upload-label" for="projImg">
+            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            <span id="projImgLabel">Imagem do projeto</span>
+            <input id="projImg" type="file" accept="image/*" style="display:none" onchange="previewProjImg(this)"/>
+          </label>
+          <button class="abtn" onclick="addProject()">+ Adicionar</button>
+        </div>
+        <div id="projImgPreview" style="display:none;margin-top:.5rem">
+          <img id="projPreviewImg" style="height:80px;border-radius:6px;border:1px solid var(--border);object-fit:cover"/>
+        </div>
+      </div>
+      <div class="section-hdr"><div class="section-hdr-title">🌐 Projetos</div></div>
+      <div id="projList"></div>
+    </div>
+
+    <!-- ── REVIEWS TAB ── -->
+    <div id="tab-reviews" class="tab-content" style="display:none">
+      <div class="info-box">
+        💬 Depoimentos enviados pelos clientes aparecem aqui como <strong>Pendentes</strong>. Aprove para publicar no site.
+      </div>
+      <div id="reviewList"></div>
+    </div>
+
+    <!-- ── SETTINGS TAB ── -->
+    <div id="tab-settings" class="tab-content" style="display:none">
+      <div class="form-card">
+        <div class="section-hdr-title" style="margin-bottom:1rem">🏢 Informações da Empresa</div>
+        <div class="settings-grid">
+          <div class="settings-group">
+            <label class="settings-label">Nome da empresa</label>
+            <input id="st-name" class="ainput" placeholder="NY Creative Lab"/>
+          </div>
+          <div class="settings-group">
+            <label class="settings-label">WhatsApp (somente números)</label>
+            <input id="st-whatsapp" class="ainput" placeholder="5582993214374"/>
+          </div>
+          <div class="settings-group">
+            <label class="settings-label">E-mail</label>
+            <input id="st-email" class="ainput" placeholder="contato@exemplo.com"/>
+          </div>
+          <div class="settings-group">
+            <label class="settings-label">Chave PIX</label>
+            <input id="st-pix" class="ainput" placeholder="contato@exemplo.com"/>
+          </div>
+          <div class="settings-group">
+            <label class="settings-label">Instagram (URL)</label>
+            <input id="st-instagram" class="ainput" placeholder="https://instagram.com/seuuser"/>
+          </div>
+          <div class="settings-group">
+            <label class="settings-label">Facebook (URL)</label>
+            <input id="st-facebook" class="ainput" placeholder="https://facebook.com/suapagina"/>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="section-hdr-title" style="margin-bottom:1rem">📊 Contadores do Hero</div>
+        <div class="settings-grid">
+          <div class="settings-group">
+            <label class="settings-label">Projetos entregues</label>
+            <input id="st-projects" class="ainput" type="number" placeholder="50"/>
+          </div>
+          <div class="settings-group">
+            <label class="settings-label">Clientes satisfeitos</label>
+            <input id="st-clients" class="ainput" type="number" placeholder="40"/>
+          </div>
+          <div class="settings-group">
+            <label class="settings-label">Anos de experiência</label>
+            <input id="st-years" class="ainput" type="number" placeholder="5"/>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="section-hdr-title" style="margin-bottom:1rem">🤖 Chatbot IA</div>
+        <div class="settings-group full" style="margin-bottom:1rem">
+          <label class="settings-label">Mensagem de boas-vindas</label>
+          <textarea id="st-chat" class="ainput" rows="3" style="resize:vertical" placeholder="Olá! Sou o assistente da NY Creative Lab..."></textarea>
+        </div>
+        <div class="divider"></div>
+        <div class="section-hdr-title" style="margin-bottom:1rem">🖼️ Logo</div>
+        <div class="form-row">
+          <label class="upload-label" for="st-logo">
+            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            <span id="stLogoLabel">Fazer upload do logo</span>
+            <input id="st-logo" type="file" accept="image/*" style="display:none" onchange="previewLogo(this)"/>
+          </label>
+        </div>
+        <div id="logoPreview" style="display:none;margin-top:.75rem">
+          <img id="logoPreviewImg" style="height:80px;border-radius:8px;border:1px solid var(--border);object-fit:contain;background:rgba(255,255,255,.05);padding:.5rem"/>
+        </div>
+        <div class="divider"></div>
+        <div class="section-hdr-title" style="margin-bottom:1rem">🕐 Disponibilidade de Horários</div>
+        <div class="info-box" style="margin-bottom:1rem">
+          Configure os dias e horários em que você está disponível para atendimento. Essas informações serão exibidas no site e no chatbot.
+        </div>
+        <div id="availability-list" style="margin-bottom:1rem"></div>
+        <div style="margin-top:1.25rem">
+          <button class="abtn" onclick="saveSettings()">💾 Salvar Configurações</button>
+        </div>
+        <div class="divider"></div>
+        <div class="section-hdr-title" style="margin-bottom:1rem">📍 Localização</div>
+        <div class="settings-grid">
+          <div class="settings-group full">
+            <label class="settings-label">Endereço completo</label>
+            <input id="st-address" class="ainput" placeholder="Rua Exemplo, 123 — Bairro, Cidade — AL"/>
+          </div>
+          <div class="settings-group">
+            <label class="settings-label">Cidade</label>
+            <input id="st-city" class="ainput" placeholder="Arapiraca"/>
+          </div>
+          <div class="settings-group">
+            <label class="settings-label">Estado (UF)</label>
+            <input id="st-state" class="ainput" placeholder="AL"/>
+          </div>
+          <div class="settings-group full">
+            <label class="settings-label">Link do Google Maps (opcional)</label>
+            <input id="st-maps" class="ainput" placeholder="https://maps.google.com/..."/>
+          </div>
+          <div class="settings-group full">
+            <label class="settings-label">Modalidade de atendimento</label>
+            <div style="display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.25rem">
+              <label style="display:flex;align-items:center;gap:.4rem;cursor:pointer;font-size:.85rem;color:var(--text)">
+                <input type="checkbox" id="st-presencial" style="accent-color:var(--blue)"/> Presencial
+              </label>
+              <label style="display:flex;align-items:center;gap:.4rem;cursor:pointer;font-size:.85rem;color:var(--text)">
+                <input type="checkbox" id="st-online" style="accent-color:var(--blue)"/> Online / Remoto
+              </label>
+              <label style="display:flex;align-items:center;gap:.4rem;cursor:pointer;font-size:.85rem;color:var(--text)">
+                <input type="checkbox" id="st-domicilio" style="accent-color:var(--blue)"/> A domicílio
+              </label>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:1.25rem">
+          <button class="abtn" onclick="saveSettings()">💾 Salvar Configurações</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<script>
+// ===================== CONSTANTS =====================
+const STORE_KEY = 'nycreativelab_data_v1';
+const PWD_KEY   = 'nycreativelab_pwd';
+const RECOVERY_PWD = 'nyrecovery2025';
+const DEFAULT_PWD  = 'admin123';
+
+// ===================== PASSWORD MANAGEMENT =====================
+function getPassword(){
+  return localStorage.getItem(PWD_KEY) || DEFAULT_PWD;
+}
+function setPassword(pwd){
+  localStorage.setItem(PWD_KEY, pwd);
+}
+
+// ===================== EYE TOGGLE =====================
+function toggleEye(inputId, iconId){
+  const inp = document.getElementById(inputId);
+  const ico = document.getElementById(iconId);
+  if(inp.type === 'password'){
+    inp.type = 'text';
+    ico.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>';
+  } else {
+    inp.type = 'password';
+    ico.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+  }
+}
+
+// ===================== LOGIN =====================
+function doLogin(){
+  const pwd = document.getElementById('loginPwd').value;
+  const err = document.getElementById('loginError');
+  if(pwd === getPassword()){
+    document.getElementById('loginPage').style.display = 'none';
+    document.getElementById('adminPage').style.display = 'flex';
+    document.getElementById('adminPage').style.flexDirection = 'column';
+    loadData();
+    renderAll();
+    showToast('✓ Bem-vindo ao painel!');
+  } else {
+    err.style.display = 'flex';
+    document.getElementById('loginPwd').value = '';
+    document.getElementById('loginPwd').style.borderColor = 'var(--pink)';
+    setTimeout(()=>{
+      document.getElementById('loginPwd').style.borderColor = '';
+      err.style.display = 'none';
+    }, 2500);
+  }
+}
+document.addEventListener('keydown', e => {
+  if(e.key === 'Enter' && document.getElementById('loginPage').style.display !== 'none') doLogin();
+});
+
+function doLogout(){
+  document.getElementById('adminPage').style.display = 'none';
+  document.getElementById('loginPage').style.display = 'flex';
+  document.getElementById('loginPwd').value = '';
+}
+
+// ===================== CHANGE PASSWORD =====================
+let _recovering = false;
+function openChangePwd(recovering){
+  _recovering = recovering;
+  const modal = document.getElementById('changePwdModal');
+  const notice = document.getElementById('cpwdRecoverNotice');
+  const currentWrap = document.getElementById('cpwdCurrentWrap');
+  const closeBtn = document.getElementById('changePwdCloseBtn');
+  notice.style.display = recovering ? 'block' : 'none';
+  // In recovery mode, current field = recovery password; label changes
+  if(recovering){
+    document.querySelector('#cpwdCurrentWrap .field-label').textContent = 'Senha mestre de recuperação';
+    document.getElementById('cpwdCurrent').placeholder = 'Senha mestre de recuperação';
+  } else {
+    document.querySelector('#cpwdCurrentWrap .field-label').textContent = 'Senha atual';
+    document.getElementById('cpwdCurrent').placeholder = 'Senha atual';
+  }
+  document.getElementById('cpwdCurrent').value = '';
+  document.getElementById('cpwdNew').value = '';
+  document.getElementById('cpwdConfirm').value = '';
+  document.getElementById('cpwdError').style.display = 'none';
+  modal.style.display = 'flex';
+}
+function closeChangePwd(){
+  document.getElementById('changePwdModal').style.display = 'none';
+}
+function doChangePwd(){
+  const current = document.getElementById('cpwdCurrent').value;
+  const newPwd  = document.getElementById('cpwdNew').value;
+  const confirm = document.getElementById('cpwdConfirm').value;
+  const errEl   = document.getElementById('cpwdError');
+
+  // Validate current / recovery
+  const expected = _recovering ? RECOVERY_PWD : getPassword();
+  if(current !== expected){
+    errEl.textContent = _recovering ? 'Senha mestre incorreta.' : 'Senha atual incorreta.';
+    errEl.style.display = 'flex'; return;
+  }
+  if(newPwd.length < 6){
+    errEl.textContent = 'A nova senha deve ter ao menos 6 caracteres.';
+    errEl.style.display = 'flex'; return;
+  }
+  if(newPwd !== confirm){
+    errEl.textContent = 'As senhas não coincidem.';
+    errEl.style.display = 'flex'; return;
+  }
+  setPassword(newPwd);
+  closeChangePwd();
+  showToast('✓ Senha alterada com sucesso!');
+}
+
+// ===================== DATA =====================
+const DEFAULTS = {
+  settings:{
+    name:'NY Creative Lab',slogan:'Criamos ideias · Damos forma · Transformamos realidades.',
+    whatsapp:'5582993214374',email:'contato@ndesignweb.com',pix_key:'contato@ndesignweb.com',
+    projects_count:'50',clients_count:'40',years_count:'5',
+    instagram:'',facebook:'',
+    chat_welcome:'Olá! 👋 Sou o assistente da **NY Creative Lab**. Como posso te ajudar hoje?',
+    logo_b64:'',
+    address:'',city:'Arapiraca',state:'AL',maps_url:'',
+    atend_presencial:true,atend_online:true,atend_domicilio:false,
+    availability:[
+      {day:'Segunda-feira', active:true,  open:'09:00', close:'18:00'},
+      {day:'Terça-feira',   active:true,  open:'09:00', close:'18:00'},
+      {day:'Quarta-feira',  active:true,  open:'09:00', close:'18:00'},
+      {day:'Quinta-feira',  active:true,  open:'09:00', close:'18:00'},
+      {day:'Sexta-feira',   active:true,  open:'09:00', close:'18:00'},
+      {day:'Sábado',        active:true,  open:'09:00', close:'13:00'},
+      {day:'Domingo',       active:false, open:'',      close:''}
+    ]
+  },
+  services:[
+    {id:'s1',name:'Design Gráfico',desc:'Logos, identidade visual, cartões, banners e materiais gráficos para sua marca.',price:'A partir de R$ 120',prazo:'1–5 dias',icon:'🎨',status:'ativo',image:'',catId:''},
+    {id:'s2',name:'Impressão 3D',desc:'Peças, protótipos e objetos personalizados com tecnologia de ponta.',price:'A partir de R$ 80',prazo:'2–7 dias',icon:'🖨️',status:'ativo',image:'',catId:''},
+    {id:'s3',name:'Sites & Sistemas',desc:'Sites modernos, rápidos e responsivos. Landing pages, lojas virtuais e sistemas web.',price:'A partir de R$ 800',prazo:'7–14 dias',icon:'💻',status:'ativo',image:'',catId:''},
+    {id:'s4',name:'Personalizados em Papel',desc:'Convites, embalagens, kits e papelaria criativa para eventos e marcas.',price:'A partir de R$ 50',prazo:'1–3 dias',icon:'🎁',status:'ativo',image:'',catId:''},
+    {id:'s5',name:'Social Media',desc:'Posts, stories, reels e artes profissionais para redes sociais.',price:'A partir de R$ 200',prazo:'pacote mensal',icon:'📱',status:'ativo',image:'',catId:''},
+    {id:'s6',name:'Logo & Branding',desc:'Logotipo profissional com manual de marca completo.',price:'A partir de R$ 350',prazo:'3–5 dias',icon:'⚡',status:'ativo',image:'',catId:''}
+  ],
+  categories:[
+    {id:'c1',name:'Design Gráfico',icon:'🎨'},
+    {id:'c2',name:'Impressão 3D',icon:'🖨️'},
+    {id:'c3',name:'Programação',icon:'💻'},
+    {id:'c4',name:'Personalizados',icon:'🎁'},
+    {id:'c5',name:'Social Media',icon:'📱'}
+  ],
+  projects:[],
+  reviews:[]
+};
+
+let DATA = null;
+
+function loadData(){
+  try{
+    const raw = localStorage.getItem(STORE_KEY);
+    DATA = raw ? JSON.parse(raw) : JSON.parse(JSON.stringify(DEFAULTS));
+  }catch(e){ DATA = JSON.parse(JSON.stringify(DEFAULTS)); }
+  // Ensure all keys exist
+  ['settings','services','categories','projects','reviews'].forEach(k=>{
+    if(!DATA[k]) DATA[k] = DEFAULTS[k] || (k==='settings'?DEFAULTS.settings:[]);
+  });
+  Object.keys(DEFAULTS.settings).forEach(k=>{
+    if(DATA.settings[k]===undefined) DATA.settings[k]=DEFAULTS.settings[k];
+  });
+}
+
+function saveData(){
+  localStorage.setItem(STORE_KEY, JSON.stringify(DATA));
+  showToast('✓ Salvo com sucesso!');
+}
+
+// ===================== TABS =====================
+let activeTab = 'services';
+function switchTab(tab){
+  activeTab = tab;
+  document.querySelectorAll('.atab').forEach(t=>t.classList.toggle('active',t.dataset.tab===tab));
+  document.querySelectorAll('.tab-content').forEach(c=>c.style.display=c.id==='tab-'+tab?'block':'none');
+  renderTab(tab);
+}
+function renderAll(){ renderTab(activeTab); }
+function renderTab(tab){
+  if(tab==='services') renderServices();
+  else if(tab==='categories') renderCategories();
+  else if(tab==='projects') renderProjects();
+  else if(tab==='reviews') renderReviews();
+  else if(tab==='settings') renderSettings();
+}
+
+// ===================== CATEGORIES =====================
+function renderCategories(){
+  populateCatSelect();
+  const list = document.getElementById('catList');
+  if(!DATA.categories.length){ list.innerHTML='<div class="empty-state">Nenhuma categoria.<br>Adicione acima.</div>'; return; }
+  list.innerHTML = DATA.categories.map(c=>`
+    <div class="list-row">
+      <span class="row-icon">${c.icon}</span>
+      <span class="row-name">${c.name}</span>
+      <button class="row-del" onclick="deleteCategory('${c.id}')" title="Remover">
+        <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+      </button>
+    </div>`).join('');
+}
+
+function populateCatSelect(){
+  const sel = document.getElementById('svcCat');
+  if(!sel) return;
+  sel.innerHTML = '<option value="">Categoria...</option>' +
+    DATA.categories.map(c=>`<option value="${c.id}">${c.icon} ${c.name}</option>`).join('');
+}
+
+function addCategory(){
+  const name = document.getElementById('newCatName').value.trim();
+  if(!name){ showToast('Digite o nome!','error'); return; }
+  const icon = document.getElementById('newCatIcon').value.trim() || '📦';
+  DATA.categories.push({id:'c'+Date.now(),name,icon});
+  document.getElementById('newCatName').value = '';
+  document.getElementById('newCatIcon').value = '';
+  saveData(); renderCategories();
+}
+
+function deleteCategory(id){
+  const hasSvc = DATA.services.some(s=>s.catId===id);
+  if(hasSvc){ showToast('Remova os serviços desta categoria primeiro!','error'); return; }
+  DATA.categories = DATA.categories.filter(c=>c.id!==id);
+  saveData(); renderCategories();
+}
+
+// ===================== SERVICES =====================
+function renderServices(){
+  populateCatSelect();
+  const list = document.getElementById('svcList');
+  if(!DATA.services.length){ list.innerHTML='<div class="empty-state">Nenhum serviço cadastrado.<br>Adicione o primeiro acima!</div>'; return; }
+  list.innerHTML = DATA.services.map(svc=>{
+    const cat = DATA.categories.find(c=>c.id===svc.catId);
+    const statusDot = svc.status==='ativo'
+      ? '<span style="color:var(--blue);font-size:.7rem">● Ativo</span>'
+      : '<span style="color:var(--muted);font-size:.7rem">● Inativo</span>';
+    return `<div class="svc-row">
+      ${svc.image?`<img src="${svc.image}" class="svc-thumb"/>`:`<div class="svc-thumb-ph">${svc.icon||'✨'}</div>`}
+      <div class="svc-info">
+        <div class="svc-name">${svc.name} ${statusDot}</div>
+        <div class="svc-meta">${svc.price} · ⏱ ${svc.prazo||'—'} · ${cat?cat.icon+' '+cat.name:'—'}</div>
+        <div class="svc-desc">${svc.desc||svc.description||''}</div>
+      </div>
+      <div class="svc-actions">
+        <button class="abtn abtn-sm abtn-secondary" onclick="editService('${svc.id}')">✏️ Editar</button>
+        <button class="abtn abtn-sm" onclick="toggleSvcStatus('${svc.id}')" style="background:${svc.status==='ativo'?'rgba(255,60,172,.08)':'rgba(0,200,255,.08)'};border:1px solid ${svc.status==='ativo'?'rgba(255,60,172,.25)':'rgba(0,200,255,.25)'};color:${svc.status==='ativo'?'var(--pink)':'var(--blue)'}">
+          ${svc.status==='ativo'?'🔒 Ocultar':'👁 Mostrar'}
+        </button>
+        <button class="abtn abtn-sm abtn-danger" onclick="deleteService('${svc.id}')">🗑️</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function previewSvcImg(input){
+  const file = input.files[0]; if(!file) return;
+  document.getElementById('svcImgLabel').textContent = file.name;
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('svcPreviewImg').src = e.target.result;
+    document.getElementById('svcImgPreview').style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+
+function addService(){
+  const catId = document.getElementById('svcCat').value;
+  const name  = document.getElementById('svcName').value.trim();
+  const price = document.getElementById('svcPrice').value.trim();
+  const prazo = document.getElementById('svcPrazo').value.trim();
+  const icon  = document.getElementById('svcIcon').value.trim() || '✨';
+  const desc  = document.getElementById('svcDesc').value.trim();
+  if(!name||!price){ showToast('Nome e preço são obrigatórios!','error'); return; }
+  const imgInput = document.getElementById('svcImg');
+  const saveIt = (image='') => {
+    DATA.services.push({id:'s'+Date.now(),catId,name,price,prazo,icon,desc,status:'ativo',image});
+    saveData();
+    // Reset form
+    ['svcCat','svcName','svcPrice','svcPrazo','svcIcon','svcDesc'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('svcImg').value='';
+    document.getElementById('svcImgLabel').textContent='Foto do serviço (opcional)';
+    document.getElementById('svcImgPreview').style.display='none';
+    renderServices();
+  };
+  if(imgInput.files[0]){
+    const reader = new FileReader();
+    reader.onload = e => saveIt(e.target.result);
+    reader.readAsDataURL(imgInput.files[0]);
+  } else { saveIt(); }
+}
+
+function editService(id){
+  const svc = DATA.services.find(s=>s.id===id); if(!svc) return;
+  const name  = prompt('Nome do serviço:',svc.name); if(name===null) return;
+  const price = prompt('Preço (ex: A partir de R$ 120):',svc.price);
+  const prazo = prompt('Prazo (ex: 1–5 dias):',svc.prazo||'');
+  const desc  = prompt('Descrição:',svc.desc||svc.description||'');
+  const icon  = prompt('Emoji/ícone:',svc.icon||'✨');
+  svc.name  = name||svc.name;
+  svc.price = price||svc.price;
+  svc.prazo = prazo||svc.prazo;
+  svc.desc  = desc||svc.desc;
+  svc.icon  = icon||svc.icon;
+  saveData(); renderServices();
+}
+
+function toggleSvcStatus(id){
+  const svc = DATA.services.find(s=>s.id===id); if(!svc) return;
+  svc.status = svc.status==='ativo'?'inativo':'ativo';
+  saveData(); renderServices();
+}
+
+function deleteService(id){
+  if(!confirm('Remover este serviço?')) return;
+  DATA.services = DATA.services.filter(s=>s.id!==id);
+  saveData(); renderServices();
+}
+
+// ===================== PROJECTS =====================
+function renderProjects(){
+  const list = document.getElementById('projList');
+  if(!DATA.projects.length){ list.innerHTML='<div class="empty-state">Nenhum projeto cadastrado.<br>Adicione acima.</div>'; return; }
+  list.innerHTML = DATA.projects.map(p=>`
+    <div class="proj-row">
+      ${p.image_url?`<img src="${p.image_url}" class="svc-thumb"/>` :`<div class="svc-thumb-ph">🌐</div>`}
+      <div class="svc-info">
+        <div class="svc-name">${p.name}</div>
+        <div class="svc-meta">${p.category||'—'} · ${p.status==='publicado'?'✅ Publicado':'📝 Rascunho'}</div>
+        <div class="svc-desc">${p.description||''}</div>
+      </div>
+      <div class="svc-actions">
+        <button class="abtn abtn-sm abtn-secondary" onclick="toggleProjStatus('${p.id}')">
+          ${p.status==='publicado'?'🔒 Ocultar':'👁 Publicar'}
+        </button>
+        <button class="abtn abtn-sm abtn-danger" onclick="deleteProject('${p.id}')">🗑️</button>
+      </div>
+    </div>`).join('');
+}
+
+function previewProjImg(input){
+  const file = input.files[0]; if(!file) return;
+  document.getElementById('projImgLabel').textContent = file.name;
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('projPreviewImg').src = e.target.result;
+    document.getElementById('projImgPreview').style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+
+function addProject(){
+  const name     = document.getElementById('projName').value.trim();
+  const category = document.getElementById('projCategory').value.trim();
+  const url      = document.getElementById('projUrl').value.trim();
+  const status   = document.getElementById('projStatus').value;
+  const desc     = document.getElementById('projDesc').value.trim();
+  if(!name){ showToast('Nome é obrigatório!','error'); return; }
+  const imgInput = document.getElementById('projImg');
+  const saveIt = (image_url='') => {
+    DATA.projects.push({id:'p'+Date.now(),name,category,url,description:desc,status,image_url});
+    saveData();
+    ['projName','projCategory','projUrl','projDesc'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('projStatus').value='publicado';
+    document.getElementById('projImg').value='';
+    document.getElementById('projImgLabel').textContent='Imagem do projeto';
+    document.getElementById('projImgPreview').style.display='none';
+    renderProjects();
+  };
+  if(imgInput.files[0]){
+    const reader = new FileReader();
+    reader.onload = e => saveIt(e.target.result);
+    reader.readAsDataURL(imgInput.files[0]);
+  } else { saveIt(); }
+}
+
+function toggleProjStatus(id){
+  const p = DATA.projects.find(x=>x.id===id); if(!p) return;
+  p.status = p.status==='publicado'?'rascunho':'publicado';
+  saveData(); renderProjects();
+}
+
+function deleteProject(id){
+  if(!confirm('Remover este projeto?')) return;
+  DATA.projects = DATA.projects.filter(p=>p.id!==id);
+  saveData(); renderProjects();
+}
+
+// ===================== REVIEWS =====================
+function renderReviews(){
+  const list = document.getElementById('reviewList');
+  if(!DATA.reviews.length){ list.innerHTML='<div class="empty-state">Nenhum depoimento recebido ainda.</div>'; return; }
+  list.innerHTML = DATA.reviews.map((r,i)=>`
+    <div class="review-card-admin">
+      <div class="rev-header">
+        <div>
+          <div class="rev-stars">${'⭐'.repeat(r.stars||5)}</div>
+        </div>
+        <span class="rev-status ${r.status==='publicado'?'published':'pending'}">
+          ${r.status==='publicado'?'Publicado':'Pendente'}
+        </span>
+      </div>
+      <div class="rev-name">${r.client_name} ${r.company?'· '+r.company:''}</div>
+      <div class="rev-text">"${r.review_text}"</div>
+      <div class="rev-actions">
+        ${r.status!=='publicado'?`<button class="abtn abtn-sm abtn-secondary" onclick="approveReview(${i})">✅ Aprovar</button>`:''}
+        ${r.status==='publicado'?`<button class="abtn abtn-sm" onclick="unpublishReview(${i})" style="background:rgba(255,140,66,.08);border:1px solid rgba(255,140,66,.2);color:var(--orange)">📝 Despublicar</button>`:''}
+        <button class="abtn abtn-sm abtn-danger" onclick="deleteReview(${i})">🗑️ Remover</button>
+      </div>
+    </div>`).join('');
+}
+
+function approveReview(i){ DATA.reviews[i].status='publicado'; saveData(); renderReviews(); }
+function unpublishReview(i){ DATA.reviews[i].status='pendente'; saveData(); renderReviews(); }
+function deleteReview(i){
+  if(!confirm('Remover este depoimento?')) return;
+  DATA.reviews.splice(i,1); saveData(); renderReviews();
+}
+
+// ===================== AVAILABILITY =====================
+function renderAvailability(){
+  const s = DATA.settings;
+  if(!s.availability || !s.availability.length) s.availability = JSON.parse(JSON.stringify(DEFAULTS.settings.availability));
+  const container = document.getElementById('availability-list');
+  container.innerHTML = `
+    <table class="avail-table">
+      <thead>
+        <tr>
+          <th style="width:44px">Ativo</th>
+          <th>Dia</th>
+          <th>Abertura</th>
+          <th>Fechamento</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${s.availability.map((av,i)=>`
+          <tr id="avail-row-${i}">
+            <td>
+              <label class="avail-toggle">
+                <input type="checkbox" class="avail-chk" ${av.active?'checked':''} onchange="toggleAvailDay(${i})"/>
+                <span class="avail-slider"></span>
+              </label>
+            </td>
+            <td><span class="avail-day-name" style="color:${av.active?'var(--text)':'var(--muted)'}">${av.day}</span></td>
+            <td><input type="time" class="avail-time avail-open" value="${av.open||''}" ${av.active?'':'disabled'}/></td>
+            <td><input type="time" class="avail-time avail-close" value="${av.close||''}" ${av.active?'':'disabled'}/></td>
+          </tr>`).join('')}
+      </tbody>
+    </table>`;
+}
+
+function toggleAvailDay(i){
+  const row = document.getElementById('avail-row-'+i);
+  const active = row.querySelector('.avail-chk').checked;
+  row.querySelector('.avail-open').disabled  = !active;
+  row.querySelector('.avail-close').disabled = !active;
+  row.querySelector('.avail-day-name').style.color = active ? 'var(--text)' : 'var(--muted)';
+}
+
+// ===================== SETTINGS =====================
+function renderSettings(){
+  const s = DATA.settings;
+  document.getElementById('st-name').value      = s.name||'';
+  document.getElementById('st-whatsapp').value  = s.whatsapp||'';
+  document.getElementById('st-email').value     = s.email||'';
+  document.getElementById('st-pix').value       = s.pix_key||'';
+  document.getElementById('st-instagram').value = s.instagram||'';
+  document.getElementById('st-facebook').value  = s.facebook||'';
+  document.getElementById('st-projects').value  = s.projects_count||'50';
+  document.getElementById('st-clients').value   = s.clients_count||'40';
+  document.getElementById('st-years').value     = s.years_count||'5';
+  document.getElementById('st-chat').value      = s.chat_welcome||'';
+  document.getElementById('st-address').value   = s.address||'';
+  document.getElementById('st-city').value      = s.city||'';
+  document.getElementById('st-state').value     = s.state||'';
+  document.getElementById('st-maps').value      = s.maps_url||'';
+  document.getElementById('st-presencial').checked = !!s.atend_presencial;
+  document.getElementById('st-online').checked     = !!s.atend_online;
+  document.getElementById('st-domicilio').checked  = !!s.atend_domicilio;
+  renderAvailability();
+  if(s.logo_b64){
+    document.getElementById('logoPreviewImg').src = s.logo_b64;
+    document.getElementById('logoPreview').style.display = 'block';
+    document.getElementById('stLogoLabel').textContent = 'Logo atual (clique para trocar)';
+  }
+}
+
+function previewLogo(input){
+  const file = input.files[0]; if(!file) return;
+  document.getElementById('stLogoLabel').textContent = file.name;
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('logoPreviewImg').src = e.target.result;
+    document.getElementById('logoPreview').style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+
+function saveSettings(){
+  const s = DATA.settings;
+  s.name            = document.getElementById('st-name').value.trim();
+  s.whatsapp        = document.getElementById('st-whatsapp').value.trim();
+  s.email           = document.getElementById('st-email').value.trim();
+  s.pix_key         = document.getElementById('st-pix').value.trim();
+  s.instagram       = document.getElementById('st-instagram').value.trim();
+  s.facebook        = document.getElementById('st-facebook').value.trim();
+  s.projects_count  = document.getElementById('st-projects').value.trim();
+  s.clients_count   = document.getElementById('st-clients').value.trim();
+  s.years_count     = document.getElementById('st-years').value.trim();
+  s.chat_welcome    = document.getElementById('st-chat').value.trim();
+  s.address         = document.getElementById('st-address').value.trim();
+  s.city            = document.getElementById('st-city').value.trim();
+  s.state           = document.getElementById('st-state').value.trim();
+  s.maps_url        = document.getElementById('st-maps').value.trim();
+  s.atend_presencial= document.getElementById('st-presencial').checked;
+  s.atend_online    = document.getElementById('st-online').checked;
+  s.atend_domicilio = document.getElementById('st-domicilio').checked;
+  // Availability
+  s.availability = (s.availability||[]).map((av,i)=>{
+    const row = document.getElementById('avail-row-'+i);
+    if(!row) return av;
+    return {
+      day: av.day,
+      active: row.querySelector('.avail-chk').checked,
+      open:   row.querySelector('.avail-open').value,
+      close:  row.querySelector('.avail-close').value
+    };
+  });
+  // Logo
+  const logoInput = document.getElementById('st-logo');
+  if(logoInput.files[0]){
+    const reader = new FileReader();
+    reader.onload = e => { s.logo_b64 = e.target.result; saveData(); };
+    reader.readAsDataURL(logoInput.files[0]);
+  } else {
+    saveData();
+  }
+}
+
+// ===================== DOWNLOAD ADMIN PAGE =====================
+function downloadAdminPage(){
+  const blob = new Blob([document.documentElement.outerHTML], {type:'text/html;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'admin-nycreativelab.html';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(a.href);
+  showToast('✓ Download iniciado!');
+}
+
+// ===================== TOAST =====================
+function showToast(msg, type='success'){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = type==='error'?'rgba(255,60,172,.15)':'rgba(0,200,255,.12)';
+  t.style.borderColor = type==='error'?'rgba(255,60,172,.5)':'rgba(0,200,255,.4)';
+  t.style.color = type==='error'?'var(--pink)':'var(--blue)';
+  t.style.opacity = '1';
+  t.style.transform = 'translateX(-50%) translateY(0)';
+  setTimeout(()=>{ t.style.opacity='0'; t.style.transform='translateX(-50%) translateY(10px)'; }, 2500);
+}
+
+// ===================== INIT =====================
+// Auto-login check (optional: could add session token, but keeping simple)
+document.getElementById('loginPwd').focus();
+</script>
+</body>
+</html>
