@@ -456,6 +456,42 @@ select.ainput{cursor:pointer}
       <div id="svcList"></div>
     </div>
 
+    <!-- ── EDIT SERVICE MODAL ── -->
+    <div id="editSvcModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(6px);z-index:9999;align-items:center;justify-content:center;padding:1rem">
+      <div class="modal-card" style="max-width:460px">
+        <div class="modal-header">
+          <div class="modal-title">✏️ Editar Serviço</div>
+          <button class="modal-close" onclick="closeEditSvcModal()">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-row">
+            <select id="editSvcCat" class="ainput"><option value="">Categoria...</option></select>
+            <input id="editSvcName" class="ainput" placeholder="Nome do serviço"/>
+          </div>
+          <div class="form-row">
+            <input id="editSvcPrice" class="ainput" type="text" placeholder="Preço"/>
+            <input id="editSvcPrazo" class="ainput" placeholder="Prazo"/>
+          </div>
+          <div class="form-row">
+            <input id="editSvcIcon" class="ainput ainput-sm" placeholder="🎨 Emoji"/>
+            <input id="editSvcDesc" class="ainput" placeholder="Descrição breve"/>
+          </div>
+          <div class="form-row">
+            <label class="upload-label" for="editSvcImg">
+              <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              <span id="editSvcImgLabel">Trocar foto do produto</span>
+              <input id="editSvcImg" type="file" accept="image/*" style="display:none" onchange="previewEditSvcImg(this)"/>
+            </label>
+          </div>
+          <div id="editSvcImgPreview" style="display:none;margin-top:.5rem;position:relative">
+            <img id="editSvcPreviewImg" style="height:100px;border-radius:6px;border:1px solid var(--border);object-fit:cover"/>
+            <button onclick="removeEditSvcImg()" style="position:absolute;top:-8px;left:90px;background:var(--pink);border:none;color:#fff;border-radius:50%;width:22px;height:22px;cursor:pointer;font-size:.7rem">✕</button>
+          </div>
+          <button class="abtn" style="width:100%;margin-top:1rem" onclick="saveEditService()">💾 Salvar Alterações</button>
+        </div>
+      </div>
+    </div>
+
     <!-- ── CATEGORIES TAB ── -->
     <div id="tab-categories" class="tab-content" style="display:none">
       <div class="form-card">
@@ -834,8 +870,8 @@ function renderCategories(){
     </div>`).join('');
 }
 
-function populateCatSelect(){
-  const sel = document.getElementById('svcCat');
+function populateCatSelect(targetId='svcCat'){
+  const sel = document.getElementById(targetId);
   if(!sel) return;
   sel.innerHTML = '<option value="">Categoria...</option>' +
     DATA.categories.map(c=>`<option value="${c.id}">${c.icon} ${c.name}</option>`).join('');
@@ -923,19 +959,76 @@ function addService(){
   } else { saveIt(); }
 }
 
+let editingSvcId = null;
+let editingSvcImage = null;
+
 function editService(id){
   const svc = DATA.services.find(s=>s.id===id); if(!svc) return;
-  const name  = prompt('Nome do serviço:',svc.name); if(name===null) return;
-  const price = prompt('Preço (ex: A partir de R$ 120):',svc.price);
-  const prazo = prompt('Prazo (ex: 1–5 dias):',svc.prazo||'');
-  const desc  = prompt('Descrição:',svc.desc||svc.description||'');
-  const icon  = prompt('Emoji/ícone:',svc.icon||'✨');
-  svc.name  = name||svc.name;
-  svc.price = price||svc.price;
-  svc.prazo = prazo||svc.prazo;
-  svc.desc  = desc||svc.desc;
-  svc.icon  = icon||svc.icon;
-  saveData(); renderServices();
+  editingSvcId = id;
+  editingSvcImage = svc.image || '';
+
+  populateCatSelect('editSvcCat');
+  document.getElementById('editSvcCat').value   = svc.catId || '';
+  document.getElementById('editSvcName').value  = svc.name || '';
+  document.getElementById('editSvcPrice').value = svc.price || '';
+  document.getElementById('editSvcPrazo').value = svc.prazo || '';
+  document.getElementById('editSvcIcon').value  = svc.icon || '';
+  document.getElementById('editSvcDesc').value  = svc.desc || svc.description || '';
+  document.getElementById('editSvcImg').value   = '';
+  document.getElementById('editSvcImgLabel').textContent = 'Trocar foto do produto';
+
+  if(svc.image){
+    document.getElementById('editSvcPreviewImg').src = svc.image;
+    document.getElementById('editSvcImgPreview').style.display = 'block';
+  } else {
+    document.getElementById('editSvcImgPreview').style.display = 'none';
+  }
+
+  document.getElementById('editSvcModal').style.display = 'flex';
+}
+
+function closeEditSvcModal(){
+  document.getElementById('editSvcModal').style.display = 'none';
+  editingSvcId = null;
+}
+
+function previewEditSvcImg(input){
+  const file = input.files[0]; if(!file) return;
+  document.getElementById('editSvcImgLabel').textContent = file.name;
+  const reader = new FileReader();
+  reader.onload = e => {
+    editingSvcImage = e.target.result;
+    document.getElementById('editSvcPreviewImg').src = editingSvcImage;
+    document.getElementById('editSvcImgPreview').style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeEditSvcImg(){
+  editingSvcImage = '';
+  document.getElementById('editSvcImg').value = '';
+  document.getElementById('editSvcImgLabel').textContent = 'Trocar foto do produto';
+  document.getElementById('editSvcImgPreview').style.display = 'none';
+}
+
+function saveEditService(){
+  const svc = DATA.services.find(s=>s.id===editingSvcId); if(!svc) return;
+  const name  = document.getElementById('editSvcName').value.trim();
+  const price = document.getElementById('editSvcPrice').value.trim();
+  if(!name||!price){ showToast('Nome e preço são obrigatórios!','error'); return; }
+
+  svc.catId = document.getElementById('editSvcCat').value;
+  svc.name  = name;
+  svc.price = price;
+  svc.prazo = document.getElementById('editSvcPrazo').value.trim();
+  svc.icon  = document.getElementById('editSvcIcon').value.trim() || svc.icon || '✨';
+  svc.desc  = document.getElementById('editSvcDesc').value.trim();
+  svc.image = editingSvcImage || '';
+
+  saveData();
+  renderServices();
+  closeEditSvcModal();
+  showToast('✓ Serviço atualizado!');
 }
 
 function toggleSvcStatus(id){

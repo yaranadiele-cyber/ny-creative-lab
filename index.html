@@ -174,6 +174,18 @@ section{position:relative;z-index:1}
   position:relative;overflow:hidden;
   transition:all .4s;cursor:default;
 }
+.service-card.has-photo{padding:0 0 2rem}
+.service-photo{
+  width:100%;height:180px;object-fit:cover;display:block;
+  border-bottom:1px solid var(--border);
+}
+.service-card.has-photo .service-icon,
+.service-card.has-photo .service-name,
+.service-card.has-photo .service-desc,
+.service-card.has-photo .service-price,
+.service-card.has-photo .service-prazo,
+.service-card.has-photo .service-cta{margin-left:2rem;margin-right:2rem}
+.service-card.has-photo .service-icon{margin-top:1.5rem}
 .service-card::before{
   content:'';position:absolute;top:0;left:0;right:0;height:2px;
   background:var(--grad-main);opacity:0;transition:opacity .4s;
@@ -913,7 +925,8 @@ function renderServices(){
   const services = DATA.services.filter(s=>s.status!=='inativo');
   const grid = document.getElementById('services-grid');
   grid.innerHTML = services.map(s => `
-    <div class="service-card">
+    <div class="service-card${s.image?' has-photo':''}">
+      ${s.image?`<img src="${s.image}" alt="${s.name}" class="service-photo">`:''}
       <div class="service-icon">${s.icon||'⚡'}</div>
       <div class="service-name">${s.name}</div>
       <div class="service-desc">${s.desc||s.description||''}</div>
