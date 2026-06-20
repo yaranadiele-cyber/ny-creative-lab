@@ -534,7 +534,7 @@ footer{
   <a href="#depoimentos" onclick="closeMobile()">Depoimentos</a>
   <a href="#contato" onclick="closeMobile()">Contato</a>
   <div style="border-top:1px solid var(--border);margin-top:1rem;padding-top:1rem">
-    <a href="#" onclick="closeMobile(); openAdminPanel(); return false;" style="color:var(--blue);font-weight:700;display:flex;align-items:center;gap:.5rem">
+    <a href="admin.html" onclick="closeMobile();" style="color:var(--blue);font-weight:700;display:flex;align-items:center;gap:.5rem">
       ⚙️ Painel Admin
     </a>
   </div>
@@ -831,8 +831,8 @@ let DATA = null;
 
 async function loadData(){
   try{
-    const r = await window.storage.get(STORE_KEY);
-    DATA = r ? JSON.parse(r.value) : JSON.parse(JSON.stringify(DEFAULTS));
+    const raw = localStorage.getItem(STORE_KEY);
+    DATA = raw ? JSON.parse(raw) : JSON.parse(JSON.stringify(DEFAULTS));
   }catch(e){
     DATA = JSON.parse(JSON.stringify(DEFAULTS));
   }
@@ -846,9 +846,22 @@ async function loadData(){
 async function saveReview(review){
   try{
     DATA.reviews.push(review);
-    await window.storage.set(STORE_KEY, JSON.stringify(DATA));
+    localStorage.setItem(STORE_KEY, JSON.stringify(DATA));
   }catch(e){ console.error(e); }
 }
+
+// Recarrega os dados do localStorage sempre que a aba volta a ficar visível
+// (ex: o usuário estava no painel admin em outra aba/janela e voltou pro site)
+document.addEventListener('visibilitychange', function(){
+  if(!document.hidden){
+    loadData().then(applySettings);
+  }
+});
+window.addEventListener('storage', function(e){
+  if(e.key === STORE_KEY){
+    loadData().then(applySettings);
+  }
+});
 
 // ===================== SETTINGS =====================
 function applySettings(){
@@ -1156,233 +1169,11 @@ init();
 document.addEventListener('keydown', (e) => {
   if (e.ctrlKey && e.shiftKey && e.key === 'A') {
     e.preventDefault();
-    openAdminPanel();
+    window.location.href = 'admin.html';
   }
 });
 
-const ADMIN_PASSWORD = 'admin123'; // Altere esta senha!
-const STORAGE_KEY = 'nycreativelab_services';
-const WHATSAPP_NUMBER = '5582993214374'; // Seu número do WhatsApp
-
-function openAdminPanel() {
-  const pwd = prompt('🔐 Senha do Painel Admin:');
-  if (pwd === ADMIN_PASSWORD) {
-    document.getElementById('adminModal').style.display = 'flex';
-    loadAdminData();
-  } else if (pwd !== null) {
-    alert('❌ Senha incorreta!');
-  }
-}
-
-function closeAdminPanel() {
-  document.getElementById('adminModal').style.display = 'none';
-}
-
-function loadAdminData() {
-  const data = localStorage.getItem(STORAGE_KEY);
-  if (data) {
-    window.adminData = JSON.parse(data);
-  } else {
-    window.adminData = {
-      categories: [
-        { id: 1, name: 'Design Gráfico', icon: '🎨' },
-        { id: 2, name: 'Impressão 3D', icon: '🖨️' },
-        { id: 3, name: 'Programação', icon: '💻' }
-      ],
-      services: []
-    };
-  }
-  renderAdminPanel();
-}
-
-function saveAdminData() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(window.adminData));
-  notifyWhatsApp('✅ Serviços atualizados com sucesso!');
-  renderServices();
-  alert('✓ Salvo com sucesso!');
-}
-
-function addCategory() {
-  const name = prompt('Nome da categoria:');
-  if (!name) return;
-  const icon = prompt('Ícone (emoji):', '📦');
-  
-  const newCat = {
-    id: Date.now(),
-    name: name,
-    icon: icon || '📦'
-  };
-  
-  window.adminData.categories.push(newCat);
-  saveAdminData();
-  renderAdminPanel();
-}
-
-function addService() {
-  const catId = document.getElementById('adminCategorySelect').value;
-  if (!catId) {
-    alert('Selecione uma categoria!');
-    return;
-  }
-  
-  const name = prompt('Nome do serviço:');
-  if (!name) return;
-  
-  const price = parseFloat(prompt('Preço (R$):', '0'));
-  const description = prompt('Descrição:');
-  
-  const newSvc = {
-    id: Date.now(),
-    catId: parseInt(catId),
-    name: name,
-    price: price || 0,
-    description: description || '',
-    icon: '✨',
-    image: ''
-  };
-  
-  // Solicitar upload de foto
-  const input = document.createElement('input');
-  input.type = 'file';
-  input.accept = 'image/*';
-  input.onchange = (e) => {
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      newSvc.image = event.target.result;
-      window.adminData.services.push(newSvc);
-      saveAdminData();
-      renderAdminPanel();
-    };
-    reader.readAsDataURL(e.target.files[0]);
-  };
-  input.click();
-}
-
-function editService(id) {
-  const svc = window.adminData.services.find(s => s.id === id);
-  if (!svc) return;
-  
-  const name = prompt('Nome do serviço:', svc.name) || svc.name;
-  const price = parseFloat(prompt('Preço (R$):', svc.price)) || svc.price;
-  const description = prompt('Descrição:', svc.description) || svc.description;
-  
-  svc.name = name;
-  svc.price = price;
-  svc.description = description;
-  
-  saveAdminData();
-  renderAdminPanel();
-}
-
-function deleteService(id) {
-  if (confirm('Tem certeza que deseja deletar este serviço?')) {
-    window.adminData.services = window.adminData.services.filter(s => s.id !== id);
-    saveAdminData();
-    renderAdminPanel();
-  }
-}
-
-function renderAdminPanel() {
-  let html = '<div style="padding: 1.5rem; color: var(--text);">';
-  html += '<h2 style="margin-bottom: 1rem; color: var(--blue);">⚙️ Painel Admin - Gerenciar Serviços</h2>';
-  
-  // Categorias
-  html += '<div style="background: var(--card); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border: 1px solid var(--border);">';
-  html += '<h3 style="color: var(--blue); margin-bottom: 1rem;">📂 Categorias</h3>';
-  window.adminData.categories.forEach(cat => {
-    html += `<div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: var(--dark); margin-bottom: 0.5rem; border-radius: 4px;">
-      <span>${cat.icon} ${cat.name}</span>
-    </div>`;
-  });
-  html += '<button onclick="addCategory()" style="width: 100%; padding: 0.75rem; background: var(--blue); color: #000; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; margin-top: 0.5rem;">+ Adicionar Categoria</button>';
-  html += '</div>';
-  
-  // Serviços
-  html += '<div style="background: var(--card); padding: 1rem; border-radius: 8px; border: 1px solid var(--border);">';
-  html += '<h3 style="color: var(--blue); margin-bottom: 1rem;">🛠️ Serviços</h3>';
-  
-  html += '<select id="adminCategorySelect" style="width: 100%; padding: 0.75rem; background: var(--dark); color: var(--text); border: 1px solid var(--border); border-radius: 4px; margin-bottom: 1rem;">';
-  html += '<option value="">Selecione uma categoria...</option>';
-  window.adminData.categories.forEach(cat => {
-    html += `<option value="${cat.id}">${cat.name}</option>`;
-  });
-  html += '</select>';
-  
-  html += '<button onclick="addService()" style="width: 100%; padding: 0.75rem; background: var(--purple); color: #fff; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; margin-bottom: 1.5rem;">+ Adicionar Serviço</button>';
-  
-  // Listar serviços
-  window.adminData.services.forEach(svc => {
-    const cat = window.adminData.categories.find(c => c.id === svc.catId);
-    html += `<div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: var(--dark); margin-bottom: 0.75rem; border-radius: 4px; border-left: 3px solid var(--blue);">
-      <div>
-        <div style="color: var(--blue); font-weight: bold;">${svc.name}</div>
-        <div style="color: var(--muted); font-size: 0.85rem;">R$ ${svc.price.toFixed(2)} • ${cat?.name}</div>
-        <div style="color: var(--muted); font-size: 0.8rem; margin-top: 0.25rem; max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${svc.description}</div>
-      </div>
-      <div style="display: flex; gap: 0.5rem;">
-        <button onclick="editService(${svc.id})" style="padding: 0.5rem 1rem; background: var(--blue); color: #000; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">✏️ Editar</button>
-        <button onclick="deleteService(${svc.id})" style="padding: 0.5rem 1rem; background: var(--pink); color: #fff; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">🗑️ Deletar</button>
-      </div>
-    </div>`;
-  });
-  
-  html += '</div>';
-  html += '<div style="margin-top: 1.5rem; display: flex; gap: 0.5rem;">';
-  html += '<button onclick="closeAdminPanel()" style="flex: 1; padding: 0.75rem; background: var(--card); color: var(--blue); border: 1px solid var(--border); border-radius: 4px; cursor: pointer; font-weight: bold;">Fechar</button>';
-  html += '</div>';
-  html += '</div>';
-  
-  document.getElementById('adminContent').innerHTML = html;
-}
-
-function notifyWhatsApp(message) {
-  const text = encodeURIComponent(`🔔 NY Creative Lab Admin\n\n${message}`);
-  const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${text}`;
-  // Abre em nova aba sem interferir na navegação
-  fetch(url, { mode: 'no-cors' }).catch(() => {});
-}
-
-// Renderizar serviços com base no armazenamento local
-function renderServicesfromAdmin() {
-  const data = localStorage.getItem(STORAGE_KEY);
-  if (!data) return;
-  
-  const adminData = JSON.parse(data);
-  const grid = document.getElementById('services-grid');
-  
-  let html = '';
-  adminData.categories.forEach(cat => {
-    const catServices = adminData.services.filter(s => s.catId === cat.id);
-    if (catServices.length === 0) return;
-    
-    html += `<div style="grid-column: 1/-1; margin-top: 2rem;">
-      <h3 style="font-family: 'Rajdhani'; font-size: 1.2rem; color: var(--blue); margin-bottom: 1.5rem;">${cat.icon} ${cat.name}</h3>
-    </div>`;
-    
-    catServices.forEach(svc => {
-      html += `<div class="service-card">
-        ${svc.image ? `<img src="${svc.image}" style="width: 100%; height: 180px; object-fit: cover; display: block; border-radius: 8px 8px 0 0;">` : ''}
-        <div class="service-icon">${svc.icon}</div>
-        <div class="service-name">${svc.name}</div>
-        <div class="service-desc">${svc.description}</div>
-        <div class="service-price">A partir de R$ ${svc.price.toFixed(2)}</div>
-        <div class="service-prazo">Consulte para detalhes</div>
-        <a href="#contato" class="service-cta">Solicitar Orçamento →</a>
-      </div>`;
-    });
-  });
-  
-  if (html) grid.innerHTML = html;
-}
-
-// Chamar ao inicializar se houver dados salvos
-renderServicesfromAdmin();
 </script>
-
-<!-- ADMIN MODAL -->
-<div id="adminModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 9999; align-items: center; justify-content: center;">
-  <div id="adminContent" style="background: var(--dark); border: 1px solid var(--border); border-radius: 12px; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto; box-shadow: 0 20px 80px rgba(0,0,0,0.9);"></div>
-</div>
 
 </body>
 </html>
